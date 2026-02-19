@@ -1,0 +1,9 @@
+﻿.firebase/
+firebase-debug.log
+**/firebase-debug.log
+
+node_modules/
+npm-debug.log
+
+.DS_Store
+.vscode/

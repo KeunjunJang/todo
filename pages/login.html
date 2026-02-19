@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - To Do List</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- CSS Variables -->
+    <link rel="stylesheet" href="../css/variables.css?v=2">
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="../css/common.css?v=2">
+    <style>
+        /* 로그인 페이지 전용 스타일 */
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #login-screen {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 60px 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+        }
+
+        .login-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .login-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .login-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .login-form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .login-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .login-btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .login-btn-google {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .login-btn-google:hover {
+            background: var(--bg-primary);
+            border-color: var(--primary);
+        }
+
+        .login-error {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 8px;
+            text-align: center;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-screen">
+        <div class="login-container">
+            <h1 class="login-title">TO DO</h1>
+            <p class="login-subtitle">To Do List에 로그인하세요</p>
+            <div id="login-error" class="login-error"></div>
+            <div class="login-form-group">
+                <label for="login-email">이메일</label>
+                <input type="email" id="login-email" placeholder="이메일을 입력하세요">
+            </div>
+            <div class="login-form-group">
+                <label for="login-password">비밀번호</label>
+                <input type="password" id="login-password" placeholder="비밀번호를 입력하세요" autocomplete="off">
+            </div>
+            <div class="login-btn-group">
+                <button class="login-btn login-btn-google" id="login-btn-google" onclick="if(window.handleGoogleLogin) window.handleGoogleLogin(); else console.error('handleGoogleLogin not found');">
+                    <i class="fab fa-google"></i>
+                    Google로 로그인
+                </button>
+                <button class="login-btn login-btn-primary" id="login-btn-signup" onclick="if(window.handleSignup) window.handleSignup(); else console.error('handleSignup not found');">
+                    <i class="fas fa-user-plus"></i>
+                    회원가입
+                </button>
+                <button class="login-btn login-btn-primary" id="login-btn-login" onclick="if(window.handleLogin) window.handleLogin(); else console.error('handleLogin not found');">
+                    <i class="fas fa-sign-in-alt"></i>
+                    로그인
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 컨테이너 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- common.js, auth.js는 index.html에서 로드됨 - 중복 로드 방지 -->
+    <script>
+        // 로그인 버튼 이벤트 연결 (백업용)
+        function setupLoginButtons() {
+            const googleBtn = document.getElementById('login-btn-google');
+            const signupBtn = document.getElementById('login-btn-signup');
+            const loginBtn = document.getElementById('login-btn-login');
+
+            if (googleBtn && window.handleGoogleLogin) {
+                googleBtn.onclick = async () => {
+                    console.log('Google 로그인 버튼 클릭됨');
+                    try {
+                        await window.handleGoogleLogin();
+                    } catch (error) {
+                        console.error('Google 로그인 오류:', error);
+                    }
+                };
+            }
+
+            if (signupBtn && window.handleSignup) {
+                signupBtn.onclick = async () => {
+                    console.log('회원가입 버튼 클릭됨');
+                    try {
+                        await window.handleSignup();
+                    } catch (error) {
+                        console.error('회원가입 오류:', error);
+                    }
+                };
+            }
+
+            if (loginBtn && window.handleLogin) {
+                loginBtn.onclick = async () => {
+                    console.log('로그인 버튼 클릭됨');
+                    try {
+                        await window.handleLogin();
+                    } catch (error) {
+                        console.error('로그인 오류:', error);
+                    }
+                };
+            }
+        }
+
+        // 엔터 키로 로그인 기능 (강력한 중복 방지)
+        (function() {
+            // 전역 핸들러 함수 (한 번만 생성)
+            if (!window._loginEnterKeyHandler) {
+                window._loginEnterKeyHandler = function(e) {
+                    if ((e.key === 'Enter' || e.keyCode === 13) && window.handleLogin) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.handleLogin();
+                    }
+                };
+            }
+
+            // 엔터 키 이벤트 설정 함수
+            function setupEnterKeyLogin() {
+                const emailInput = document.getElementById('login-email');
+                const passwordInput = document.getElementById('login-password');
+
+                if (!emailInput || !passwordInput) {
+                    return false;
+                }
+
+                // 이미 이벤트가 설정되었는지 확인 (dataset 사용)
+                if (emailInput.dataset.enterKeySetup === 'true') {
+                    return true;
+                }
+
+                // 기존 이벤트 리스너 제거 (안전하게)
+                emailInput.removeEventListener('keydown', window._loginEnterKeyHandler);
+                passwordInput.removeEventListener('keydown', window._loginEnterKeyHandler);
+
+                // 새 이벤트 리스너 추가
+                emailInput.addEventListener('keydown', window._loginEnterKeyHandler);
+                passwordInput.addEventListener('keydown', window._loginEnterKeyHandler);
+                
+                // 설정 완료 플래그
+                emailInput.dataset.enterKeySetup = 'true';
+                passwordInput.dataset.enterKeySetup = 'true';
+                
+                console.log('엔터 키 이벤트 설정 완료');
+                return true;
+            }
+
+            // 즉시 시도
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                setupEnterKeyLogin();
+            } else {
+                document.addEventListener('DOMContentLoaded', setupEnterKeyLogin);
+            }
+
+            // pageLoaded 이벤트에서도 설정 (라우터를 통한 페이지 로드 시)
+            window.addEventListener('pageLoaded', function(event) {
+                if (event.detail && event.detail.path === '/login') {
+                    setTimeout(setupEnterKeyLogin, 100);
+                }
+            });
+        })();
+
+        // auth.js 로드 후 버튼 연결 (IIFE로 변수 스코프 격리)
+        (function() {
+            // 버튼 이벤트 연결
+            let checkInterval = setInterval(() => {
+                if (window.handleLogin && window.handleSignup && window.handleGoogleLogin) {
+                    clearInterval(checkInterval);
+                    setupLoginButtons();
+                    console.log('로그인 버튼 이벤트 연결 완료');
+                }
+            }, 100);
+
+            // 최대 5초 대기
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                setupLoginButtons();
+            }, 5000);
+        })();
+    </script>
+</body>
+</html>
+

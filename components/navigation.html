@@ -1,0 +1,143 @@
+<!-- Navigation Bar 컴포넌트 -->
+<nav class="main-navigation" id="main-navigation">
+    <div class="nav-container">
+        <ul class="nav-menu">
+            <li><a href="/hub" onclick="event.preventDefault(); navigateTo('/hub'); return false;">
+                <i class="fas fa-home"></i> 홈
+            </a></li>
+            <li><a href="/todo" onclick="event.preventDefault(); navigateTo('/todo'); return false;">
+                <i class="fas fa-tasks"></i> To Do
+            </a></li>
+            <li><a href="/todowithphoto" onclick="event.preventDefault(); navigateTo('/todowithphoto'); return false;">
+                <i class="fas fa-images"></i> To Do with 사진
+            </a></li>
+            <li><a href="/new_task_1" onclick="event.preventDefault(); navigateTo('/new_task_1'); return false;">
+                <i class="fas fa-cube"></i> 3D Plot
+            </a></li>
+            <li><a href="/new_task_2" onclick="event.preventDefault(); navigateTo('/new_task_2'); return false;">
+                <i class="fas fa-cog"></i> 추가 개발 중
+            </a></li>
+        </ul>
+        <!-- 로그아웃 버튼 (Login, Hub Page 제외) -->
+        <div class="nav-logout-container">
+            <button class="nav-logout-btn" id="nav-logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                로그아웃
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- 스타일은 common.css로 이동됨 -->
+
+<script>
+// 네비게이션 초기화 함수 (전역으로 노출)
+window.setupNavigation = function() {
+    function updateActiveNav() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-menu a');
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPath || (currentPath === '/' && href === '/hub')) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
+
+    // 로그아웃 버튼 이벤트 설정
+    function setupLogoutButton() {
+        const logoutBtn = document.getElementById('nav-logout-btn');
+        console.log('setupLogoutButton 호출됨, 버튼 찾기:', logoutBtn ? '찾음' : '못찾음');
+        
+        if (logoutBtn) {
+            // 기존 이벤트 리스너 제거 후 새로 추가 (중복 방지)
+            const newLogoutBtn = logoutBtn.cloneNode(true);
+            logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+            console.log('로그아웃 버튼 이벤트 리스너 설정 완료');
+            
+            newLogoutBtn.onclick = async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('로그아웃 버튼 클릭됨');
+                
+                try {
+                    // handleLogout 함수 사용 (우선)
+                    if (window.handleLogout && typeof window.handleLogout === 'function') {
+                        console.log('handleLogout 호출');
+                        await window.handleLogout();
+                        return;
+                    }
+                    
+                    // 직접 signOut 호출 (대체 방법)
+                    if (window.firebaseAuth) {
+                        console.log('직접 signOut 호출');
+                        const { signOut } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+                        await signOut(window.firebaseAuth);
+                        
+                        // 세션 스토리지 초기화
+                        if (typeof sessionStorage !== 'undefined') {
+                            sessionStorage.removeItem('todo_app_is_refreshing');
+                        }
+                        
+                        // 로그인 페이지로 이동
+                        if (window.router) {
+                            window.router.navigate('/login');
+                        } else if (window.navigateTo) {
+                            window.navigateTo('/login');
+                        } else {
+                            window.location.href = '/login';
+                        }
+                        return;
+                    }
+                    
+                    console.error('로그아웃 함수를 찾을 수 없습니다.');
+                } catch (error) {
+                    console.error('로그아웃 오류:', error);
+                }
+            };
+        }
+    }
+
+    // Login, Hub Page에서는 로그아웃 버튼 숨김
+    function toggleLogoutButton() {
+        const currentPath = window.location.pathname;
+        const logoutContainer = document.querySelector('.nav-logout-container');
+        if (logoutContainer) {
+            if (currentPath === '/login' || currentPath === '/' || currentPath === '/hub') {
+                logoutContainer.style.display = 'none';
+            } else {
+                logoutContainer.style.display = 'flex';
+            }
+        }
+    }
+    
+    // 초기화 실행
+    console.log('setupNavigation 함수 실행 시작');
+    updateActiveNav();
+    setupLogoutButton();
+    toggleLogoutButton();
+    console.log('setupNavigation 함수 실행 완료');
+    
+    // 페이지 변경 시에도 업데이트 (SPA 라우팅 대응)
+    window.addEventListener('popstate', () => {
+        updateActiveNav();
+        toggleLogoutButton();
+    });
+    window.addEventListener('pageLoaded', () => {
+        updateActiveNav();
+        setTimeout(() => {
+            setupLogoutButton();
+            toggleLogoutButton();
+        }, 100);
+    });
+};
+
+// 즉시 실행 (DOMContentLoaded가 이미 발생했을 수 있음)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.setupNavigation);
+} else {
+    window.setupNavigation();
+}
+</script>

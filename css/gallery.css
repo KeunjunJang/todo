@@ -1,0 +1,1221 @@
+/* ============================================
+   Gallery Page - "To Do with 사진"
+   3가지 레이아웃: Magazine, Mosaic, Kanban
+   ============================================ */
+
+/* ===== 공통 헤더 ===== */
+.gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0 28px;
+    margin-bottom: 24px;
+    gap: 20px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 60px;
+    background: var(--bg-primary);
+    z-index: 100;
+}
+
+.gallery-header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.gallery-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.gallery-title i {
+    font-size: 28px;
+}
+
+.gallery-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+.gallery-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* 레이아웃 선택 */
+.layout-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card-bg);
+    padding: 6px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.layout-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.layout-dropdown {
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    outline: none;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.layout-dropdown:hover {
+    background: var(--bg-primary);
+}
+
+.layout-dropdown:focus {
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+/* 필터 그룹 */
+.gallery-filter-group {
+    display: flex;
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+    border: 1px solid var(--border-color);
+}
+
+.gallery-filter-btn {
+    padding: 7px 14px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.gallery-filter-btn:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.gallery-filter-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* 빈 상태 */
+.gallery-empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-secondary);
+}
+
+.gallery-empty h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.gallery-empty p {
+    font-size: 14px;
+}
+
+/* D-Day 라벨 */
+.days-overdue {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.days-today {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.days-soon {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.days-normal {
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* ============================================
+   LAYOUT 1: 📰 Magazine Timeline
+   ============================================ */
+
+.gallery-magazine {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.mag-task-section {
+    margin-bottom: 60px;
+}
+
+.mag-task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 32px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
+    border-radius: 20px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(99, 102, 241, 0.12);
+}
+
+.mag-task-info {
+    flex: 1;
+}
+
+.mag-task-tags {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.mag-tag {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+    padding: 3px 10px;
+    border-radius: 10px;
+}
+
+.mag-task-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 10px 0;
+}
+
+.mag-task-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.mag-task-meta i {
+    color: var(--primary);
+    margin-right: 4px;
+}
+
+/* 원형 프로그레스 */
+.mag-task-progress {
+    flex-shrink: 0;
+}
+
+.mag-progress-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--primary) calc(var(--pct) * 1%),
+        var(--border-color) calc(var(--pct) * 1%)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.mag-progress-circle::before {
+    content: '';
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+}
+
+.mag-progress-circle span {
+    position: relative;
+    z-index: 1;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* 타임라인 */
+.mag-timeline {
+    position: relative;
+    padding: 0 20px;
+}
+
+.mag-timeline-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--primary) 0%, var(--border-color) 100%);
+    border-radius: 2px;
+    transform: translateX(-50%);
+}
+
+.mag-card {
+    position: relative;
+    width: 48%;
+    margin-bottom: 32px;
+}
+
+.mag-card-left {
+    margin-right: auto;
+}
+
+.mag-card-right {
+    margin-left: auto;
+}
+
+.mag-card-dot {
+    position: absolute;
+    top: 30px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--border-color);
+    z-index: 2;
+}
+
+.mag-card-left .mag-card-dot {
+    right: -32px;
+}
+
+.mag-card-right .mag-card-dot {
+    left: -32px;
+}
+
+.mag-card-content {
+    background: var(--card-bg);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.mag-card-content:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.mag-card-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mag-card-status {
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mag-card-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.mag-card-date i {
+    margin-right: 4px;
+    color: var(--primary);
+}
+
+.mag-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    padding: 16px 20px 4px;
+}
+
+.mag-card-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding: 0 20px 8px;
+    margin: 0;
+}
+
+.mag-card-assignees {
+    padding: 0 20px 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.mag-assignee {
+    font-size: 12px;
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+    padding: 3px 10px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Magazine 사진 레이아웃 */
+.mag-card-gallery {
+    padding: 12px 20px 16px;
+}
+
+.mag-photo-single img {
+    width: 100%;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.mag-photo-single img:hover {
+    transform: scale(1.01);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.mag-photo-duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.mag-photo-duo-item {
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 4/3;
+}
+
+.mag-photo-duo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.mag-photo-duo-item:hover img {
+    transform: scale(1.05);
+}
+
+.mag-photo-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 8px;
+}
+
+.mag-photo-main {
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 4/3;
+}
+
+.mag-photo-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.mag-photo-main:hover img {
+    transform: scale(1.03);
+}
+
+.mag-photo-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mag-photo-thumb {
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    flex: 1;
+    position: relative;
+}
+
+.mag-photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.mag-photo-thumb:hover img {
+    transform: scale(1.05);
+}
+
+.mag-more-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* 사진 없을 때 업로드 */
+.mag-no-photo {
+    padding: 12px 20px 16px;
+}
+
+.mag-upload-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 28px;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 14px;
+}
+
+.mag-upload-area:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.03);
+}
+
+.mag-upload-area.drag-over {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.mag-upload-area i {
+    font-size: 22px;
+}
+
+.mag-card-upload-bar {
+    padding: 0 20px 16px;
+}
+
+.mag-upload-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.mag-upload-inline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.03);
+}
+
+.mag-upload-inline.drag-over {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+/* Magazine 반응형 */
+@media (max-width: 900px) {
+    .mag-timeline-line {
+        left: 20px;
+    }
+    
+    .mag-card {
+        width: calc(100% - 40px);
+        margin-left: 40px !important;
+        margin-right: 0 !important;
+    }
+    
+    .mag-card-dot {
+        left: -30px !important;
+        right: auto !important;
+    }
+}
+
+
+/* ============================================
+   LAYOUT 2: 📸 Photo Mosaic
+   ============================================ */
+
+.gallery-mosaic {
+    width: 100%;
+}
+
+.mosaic-grid {
+    columns: 4;
+    column-gap: 16px;
+}
+
+@media (max-width: 1400px) {
+    .mosaic-grid { columns: 3; }
+}
+
+@media (max-width: 1000px) {
+    .mosaic-grid { columns: 2; }
+}
+
+@media (max-width: 600px) {
+    .mosaic-grid { columns: 1; }
+}
+
+.mosaic-card {
+    break-inside: avoid;
+    margin-bottom: 16px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.mosaic-card:hover {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+}
+
+/* 사진 카드 */
+.mosaic-card-photo {
+    cursor: pointer;
+}
+
+.mosaic-img-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.mosaic-img-wrapper img {
+    width: 100%;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.mosaic-card:hover .mosaic-img-wrapper img {
+    transform: scale(1.05);
+}
+
+.mosaic-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0,0,0,0.5) 0%,
+        transparent 40%,
+        transparent 50%,
+        rgba(0,0,0,0.7) 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mosaic-card:hover .mosaic-overlay {
+    opacity: 1;
+}
+
+.mosaic-overlay-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mosaic-status {
+    color: white;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mosaic-overlay-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mosaic-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.mosaic-task-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+}
+
+.mosaic-task-label i {
+    margin-right: 3px;
+}
+
+.mosaic-assignee {
+    font-size: 11px;
+    color: rgba(255,255,255,0.75);
+}
+
+.mosaic-assignee i {
+    margin-right: 3px;
+}
+
+.mosaic-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+.mosaic-photo-count i {
+    margin-right: 4px;
+    color: var(--primary);
+}
+
+/* 빈 카드 */
+.mosaic-card-empty {
+    cursor: default;
+}
+
+.mosaic-empty-content {
+    padding: 20px;
+}
+
+.mosaic-empty-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.mosaic-empty-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+}
+
+.mosaic-empty-task {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 10px;
+}
+
+.mosaic-empty-task i {
+    margin-right: 4px;
+    color: var(--primary);
+}
+
+.mosaic-empty-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+}
+
+.mosaic-empty-meta i {
+    margin-right: 3px;
+    color: var(--primary);
+}
+
+.mosaic-upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 24px;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 13px;
+}
+
+.mosaic-upload-area i {
+    font-size: 28px;
+    opacity: 0.4;
+}
+
+.mosaic-upload-area:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.03);
+}
+
+.mosaic-upload-area:hover i {
+    opacity: 0.8;
+}
+
+.mosaic-upload-area.drag-over {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+
+/* ============================================
+   LAYOUT 3: 📋 Kanban Board
+   ============================================ */
+
+.gallery-kanban {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 20px;
+}
+
+.kanban-board {
+    display: flex;
+    gap: 20px;
+    min-height: calc(100vh - 250px);
+    align-items: flex-start;
+}
+
+.kanban-column {
+    min-width: 320px;
+    max-width: 380px;
+    flex-shrink: 0;
+    background: var(--bg-primary);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 200px);
+}
+
+.kanban-column-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+    border-radius: 16px 16px 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.kanban-column-title h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.kanban-column-stats {
+    display: flex;
+    gap: 12px;
+}
+
+.kanban-stat {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.kanban-stat i {
+    margin-right: 3px;
+    color: var(--primary);
+}
+
+.kanban-progress-bar {
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.kanban-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--success));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+.kanban-column-body {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.kanban-column-body::-webkit-scrollbar {
+    width: 5px;
+}
+
+.kanban-column-body::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+/* Kanban 카드 */
+.kanban-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.kanban-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.kanban-card-status-bar {
+    height: 3px;
+    width: 100%;
+}
+
+.kanban-card-header {
+    padding: 12px 14px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.kanban-status-badge {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kanban-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    padding: 10px 14px 4px;
+    line-height: 1.4;
+}
+
+.kanban-card-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 0 14px 6px;
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.kanban-card-meta {
+    padding: 0 14px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.kanban-card-meta i {
+    margin-right: 3px;
+    color: var(--primary);
+}
+
+/* Kanban 사진 */
+.kanban-card-photos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 0 14px 10px;
+}
+
+.kanban-photo {
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    cursor: pointer;
+    position: relative;
+    transition: var(--transition);
+}
+
+.kanban-photo:hover {
+    transform: scale(1.05);
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.kanban-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.kanban-photo-more {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Kanban 업로드 */
+.kanban-card-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    margin: 0 14px 14px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.kanban-card-upload:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.03);
+}
+
+.kanban-card-upload.drag-over {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+
+/* ============================================
+   라이트박스
+   ============================================ */
+
+.gallery-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-lightbox-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    cursor: pointer;
+}
+
+.gallery-lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-lightbox-content img {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.gallery-lightbox-close {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: var(--transition);
+    backdrop-filter: blur(4px);
+}
+
+.gallery-lightbox-close:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.1);
+}
+
+.gallery-lightbox-prev,
+.gallery-lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: var(--transition);
+    backdrop-filter: blur(4px);
+}
+
+.gallery-lightbox-prev:hover,
+.gallery-lightbox-next:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-lightbox-prev {
+    left: -70px;
+}
+
+.gallery-lightbox-next {
+    right: -70px;
+}
+
+.gallery-lightbox-info {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 반응형 라이트박스 */
+@media (max-width: 768px) {
+    .gallery-lightbox-prev {
+        left: 10px;
+    }
+    
+    .gallery-lightbox-next {
+        right: 10px;
+    }
+    
+    .gallery-lightbox-prev,
+    .gallery-lightbox-next {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
+
+/* ===== 반응형 헤더 ===== */
+@media (max-width: 768px) {
+    .gallery-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .gallery-header-right {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .layout-selector {
+        width: 100%;
+    }
+    
+    .gallery-filter-group {
+        width: 100%;
+    }
+    
+    .gallery-filter-btn {
+        flex: 1;
+        text-align: center;
+    }
+}
+

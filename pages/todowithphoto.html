@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do with 사진 - 태스크 관리</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- CSS Variables -->
+    <link rel="stylesheet" href="../css/variables.css?v=2">
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="../css/common.css?v=4">
+    <!-- Gallery CSS -->
+    <link rel="stylesheet" href="../css/gallery.css?v=1">
+</head>
+<body>
+    <!-- Navigation -->
+    <div id="navigation-placeholder"></div>
+
+    <!-- 메인 앱 화면 -->
+    <div id="main-app">
+        <div class="container-fluid">
+            <!-- 헤더 -->
+            <header class="gallery-header">
+                <div class="gallery-header-left">
+                    <h1 class="gallery-title">
+                        <i class="fas fa-camera-retro"></i>
+                        To Do with 사진
+                    </h1>
+                    <span class="gallery-subtitle">Activity별 사진 타임라인</span>
+                </div>
+                <div class="gallery-header-right">
+                    <!-- 레이아웃 선택 드롭다운 -->
+                    <div class="layout-selector">
+                        <label class="layout-label">
+                            <i class="fas fa-th-large"></i>
+                            레이아웃
+                        </label>
+                        <div class="layout-dropdown-wrapper">
+                            <select id="gallery-layout-select" class="layout-dropdown" onchange="changeGalleryLayout(this.value)">
+                                <option value="magazine">📰 Magazine Timeline</option>
+                                <option value="mosaic">📸 Photo Mosaic</option>
+                                <option value="kanban">📋 Kanban Board</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- 필터 -->
+                    <div class="gallery-filter-group">
+                        <button class="gallery-filter-btn active" data-filter="all" onclick="setGalleryFilter('all')">
+                            전체
+                        </button>
+                        <button class="gallery-filter-btn" data-filter="with-photos" onclick="setGalleryFilter('with-photos')">
+                            📷 사진 있음
+                        </button>
+                        <button class="gallery-filter-btn" data-filter="no-photos" onclick="setGalleryFilter('no-photos')">
+                            사진 없음
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 갤러리 컨테이너 -->
+            <main id="gallery-container">
+                <!-- 레이아웃에 따라 여기에 렌더링 -->
+            </main>
+        </div>
+    </div>
+
+    <!-- 이미지 라이트박스 (공통) -->
+    <div id="gallery-lightbox" class="gallery-lightbox" style="display: none;">
+        <div class="gallery-lightbox-overlay" onclick="closeGalleryLightbox()"></div>
+        <div class="gallery-lightbox-content">
+            <button class="gallery-lightbox-close" onclick="closeGalleryLightbox()">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="gallery-lightbox-prev" onclick="navigateGalleryLightbox(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <img id="gallery-lightbox-img" src="" alt="확대 이미지">
+            <button class="gallery-lightbox-next" onclick="navigateGalleryLightbox(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="gallery-lightbox-info" id="gallery-lightbox-info"></div>
+        </div>
+    </div>
+
+    <!-- 토스트 컨테이너 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Gallery JS -->
+    <script src="../js/gallery.js?v=1"></script>
+</body>
+</html>
+

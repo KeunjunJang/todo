@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Plot - 실내 인테리어</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/variables.css?v=2">
+    <link rel="stylesheet" href="../css/common.css?v=4">
+    <link rel="stylesheet" href="../css/new_task_1.css?v=3">
+</head>
+<body>
+    <div id="navigation-placeholder"></div>
+
+    <div id="interior-app">
+        <!-- 상단 헤더 -->
+        <header class="interior-header">
+            <div class="interior-header-left">
+                <h1 class="interior-title"><i class="fas fa-cube"></i> 3D Interior Plotter</h1>
+                <span class="interior-subtitle">소품 선택 후 View 버튼으로 3D 조감도 확인</span>
+            </div>
+            <div class="interior-header-right">
+                <!-- 3D 뷰 보이면 나타나는 버튼들 -->
+                <div class="view-controls" id="view-controls" style="display:none;">
+                    <div class="view-toggle-group">
+                        <button class="view-preset-btn" onclick="set3DView('top')"><i class="fas fa-arrow-down"></i> 탑뷰</button>
+                        <button class="view-preset-btn active" onclick="set3DView('corner')"><i class="fas fa-cube"></i> 코너</button>
+                        <button class="view-preset-btn" onclick="set3DView('front')"><i class="fas fa-eye"></i> 정면</button>
+                        <button class="view-preset-btn" onclick="set3DView('walkthrough')"><i class="fas fa-walking"></i> 내부</button>
+                    </div>
+                    <button class="interior-action-btn" onclick="backToSelection()"><i class="fas fa-arrow-left"></i> 소품 선택</button>
+                    <button class="interior-action-btn" onclick="clearAllFurniture()"><i class="fas fa-trash-alt"></i> 초기화</button>
+                    <button class="interior-action-btn primary" onclick="captureScreenshot()"><i class="fas fa-camera"></i> 캡처</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== STEP 1: 소품 선택 화면 ===== -->
+        <div class="selection-screen" id="selection-screen">
+            <div class="selection-container">
+                <!-- 방 설정 -->
+                <div class="selection-room-settings">
+                    <h3><i class="fas fa-ruler-combined"></i> 방 설정</h3>
+                    <div class="room-settings-grid">
+                        <div class="room-field">
+                            <label>가로 (m)</label>
+                            <input type="number" id="room-width" value="8" min="3" max="20" step="0.5">
+                        </div>
+                        <div class="room-field">
+                            <label>세로 (m)</label>
+                            <input type="number" id="room-depth" value="6" min="3" max="20" step="0.5">
+                        </div>
+                        <div class="room-field">
+                            <label>높이 (m)</label>
+                            <input type="number" id="room-height" value="2.7" min="2" max="5" step="0.1">
+                        </div>
+                        <div class="room-field">
+                            <label>바닥</label>
+                            <select id="floor-material">
+                                <option value="wood_light">밝은 원목</option>
+                                <option value="wood_dark">어두운 원목</option>
+                                <option value="marble_white">화이트 마블</option>
+                                <option value="marble_gray">그레이 마블</option>
+                                <option value="tile">타일</option>
+                                <option value="concrete">콘크리트</option>
+                            </select>
+                        </div>
+                        <div class="room-field">
+                            <label>벽 색상</label>
+                            <input type="color" id="wall-color" value="#f5f0eb">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 소품 선택 영역 -->
+                <div class="selection-items">
+                    <div class="selection-items-header">
+                        <h3><i class="fas fa-couch"></i> 인테리어 소품 선택</h3>
+                        <input type="text" id="component-search" class="component-search" placeholder="소품 검색..." oninput="filterComponents(this.value)">
+                        <div class="selected-count" id="selected-count">선택: 0개</div>
+                    </div>
+
+                    <div class="selection-categories" id="selection-categories">
+                        <!-- 조명 -->
+                        <div class="sel-category" data-cat="lighting">
+                            <div class="sel-cat-header"><i class="fas fa-lightbulb"></i> 조명</div>
+                            <div class="sel-cat-items">
+                                <label class="sel-item"><input type="checkbox" data-type="ceiling_light"><span class="sel-icon">💡</span><span>천장 조명</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="floor_lamp"><span class="sel-icon">🪔</span><span>플로어 램프</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="desk_lamp"><span class="sel-icon">🔦</span><span>데스크 램프</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="pendant_light"><span class="sel-icon">🏮</span><span>펜던트 조명</span></label>
+                            </div>
+                        </div>
+                        <!-- 테이블 -->
+                        <div class="sel-category" data-cat="table">
+                            <div class="sel-cat-header"><i class="fas fa-table"></i> 테이블 / 식탁</div>
+                            <div class="sel-cat-items">
+                                <label class="sel-item"><input type="checkbox" data-type="dining_table"><span class="sel-icon">🍽️</span><span>식탁 (4인)</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="dining_table_6"><span class="sel-icon">🪑</span><span>식탁 (6인)</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="coffee_table"><span class="sel-icon">☕</span><span>커피 테이블</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="side_table"><span class="sel-icon">🔲</span><span>사이드 테이블</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="desk"><span class="sel-icon">🖥️</span><span>책상</span></label>
+                            </div>
+                        </div>
+                        <!-- 소파/의자 -->
+                        <div class="sel-category" data-cat="seating">
+                            <div class="sel-cat-header"><i class="fas fa-couch"></i> 소파 / 의자</div>
+                            <div class="sel-cat-items">
+                                <label class="sel-item"><input type="checkbox" data-type="sofa_3"><span class="sel-icon">🛋️</span><span>3인 소파</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="sofa_2"><span class="sel-icon">🛋️</span><span>2인 소파</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="armchair"><span class="sel-icon">💺</span><span>안락의자</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="dining_chair"><span class="sel-icon">🪑</span><span>식탁 의자</span></label>
+                            </div>
+                        </div>
+                        <!-- 침실 -->
+                        <div class="sel-category" data-cat="bedroom">
+                            <div class="sel-cat-header"><i class="fas fa-bed"></i> 침실</div>
+                            <div class="sel-cat-items">
+                                <label class="sel-item"><input type="checkbox" data-type="bed_queen"><span class="sel-icon">🛏️</span><span>퀸 침대</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="bed_double"><span class="sel-icon">🛏️</span><span>더블 침대</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="wardrobe"><span class="sel-icon">🚪</span><span>옷장</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="nightstand"><span class="sel-icon">🗄️</span><span>협탁</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="dresser"><span class="sel-icon">🪞</span><span>화장대</span></label>
+                            </div>
+                        </div>
+                        <!-- 수납 -->
+                        <div class="sel-category" data-cat="storage">
+                            <div class="sel-cat-header"><i class="fas fa-archive"></i> 수납 / 선반</div>
+                            <div class="sel-cat-items">
+                                <label class="sel-item"><input type="checkbox" data-type="bookshelf"><span class="sel-icon">📚</span><span>책장</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="tv_stand"><span class="sel-icon">📺</span><span>TV 거치대</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="cabinet"><span class="sel-icon">🗄️</span><span>수납장</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="shoe_rack"><span class="sel-icon">👟</span><span>신발장</span></label>
+                            </div>
+                        </div>
+                        <!-- 장식 -->
+                        <div class="sel-category" data-cat="decor">
+                            <div class="sel-cat-header"><i class="fas fa-paint-brush"></i> 장식 / 소품</div>
+                            <div class="sel-cat-items">
+                                <label class="sel-item"><input type="checkbox" data-type="plant"><span class="sel-icon">🌿</span><span>화분</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="rug"><span class="sel-icon">🟫</span><span>러그</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="curtain"><span class="sel-icon">🪟</span><span>커튼</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="mirror"><span class="sel-icon">🪞</span><span>거울</span></label>
+                            </div>
+                        </div>
+                        <!-- 주방 -->
+                        <div class="sel-category" data-cat="kitchen">
+                            <div class="sel-cat-header"><i class="fas fa-utensils"></i> 주방</div>
+                            <div class="sel-cat-items">
+                                <label class="sel-item"><input type="checkbox" data-type="fridge"><span class="sel-icon">🧊</span><span>냉장고</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="kitchen_island"><span class="sel-icon">🏝️</span><span>아일랜드 식탁</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="stove"><span class="sel-icon">🔥</span><span>가스레인지</span></label>
+                                <label class="sel-item"><input type="checkbox" data-type="sink"><span class="sel-icon">🚰</span><span>싱크대</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 버튼 -->
+                <div class="view-button-area">
+                    <button class="view-btn" id="view-btn" onclick="generateView()">
+                        <i class="fas fa-eye"></i> 3D View 생성
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 2: 3D 뷰 화면 ===== -->
+        <div class="viewer-screen" id="viewer-screen" style="display:none;">
+            <div id="threejs-container"></div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

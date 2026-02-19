@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서비스 선택 - To Do List</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- CSS Variables -->
+    <link rel="stylesheet" href="../css/variables.css?v=2">
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="../css/common.css?v=2">
+    <!-- Navigation Component -->
+    <link rel="stylesheet" href="../components/navigation.html">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #e0e7ff 100%);
+            min-height: 100vh;
+        }
+
+        #hub-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin-top: 0;
+        }
+
+        .hub-container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .hub-title {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .hub-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 50px;
+        }
+
+        .hub-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .hub-option-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 40px 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hub-option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .hub-option-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .hub-option-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .hub-option-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hub-option-card.disabled:hover {
+            border-color: var(--border-color);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .hub-option-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .hub-option-card:hover .hub-option-icon {
+            transform: scale(1.1);
+        }
+
+        .hub-option-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .hub-option-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation (Hub Page에서는 숨김) -->
+    <div id="navigation-placeholder" style="display: none;"></div>
+
+    <!-- Hub Page Header with Logout Button -->
+    <div style="position: fixed; top: 0; right: 0; padding: 20px 30px; z-index: 1002;">
+        <button class="btn-logout" id="hub-logout-btn" style="background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: var(--transition);">
+            <i class="fas fa-sign-out-alt"></i> 로그아웃
+        </button>
+    </div>
+
+    <div id="hub-screen">
+        <div class="hub-container">
+            <h1 class="hub-title">서비스 선택</h1>
+            <p class="hub-subtitle">사용하실 서비스를 선택해주세요</p>
+
+            <div class="hub-options">
+                <div class="hub-option-card" onclick="navigateTo('/todo')">
+                    <div class="hub-option-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="hub-option-title">To Do</div>
+                    <div class="hub-option-desc">태스크 관리 및 일정 추적</div>
+                </div>
+                <div class="hub-option-card" onclick="navigateTo('/todowithphoto')">
+                    <div class="hub-option-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="hub-option-title">To Do with 사진</div>
+                    <div class="hub-option-desc">Activity별 사진 업로드 및 관리</div>
+                </div>
+                <div class="hub-option-card" onclick="navigateTo('/new_task_1')">
+                    <div class="hub-option-icon">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="hub-option-title">3D Plot</div>
+                    <div class="hub-option-desc">실내 인테리어 3D 조감도 시뮬레이션</div>
+                </div>
+                <div class="hub-option-card disabled">
+                    <div class="hub-option-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="hub-option-title">추가 개발 중</div>
+                    <div class="hub-option-desc">새로운 기능이 준비 중입니다</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 컨테이너 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- common.js, router.js, auth.js는 index.html에서 로드됨 - 중복 로드 방지 -->
+    <!-- Hub Page Scripts -->
+    <script>
+        // Hub Page 로그아웃 버튼 이벤트
+        (function() {
+            function setupHubLogout() {
+                const logoutBtn = document.getElementById('hub-logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async () => {
+                        if (window.handleLogout) {
+                            await window.handleLogout();
+                        } else {
+                            console.error('handleLogout 함수를 찾을 수 없습니다.');
+                        }
+                    });
+                }
+            }
+
+            // DOMContentLoaded 시 실행
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', setupHubLogout);
+            } else {
+                setupHubLogout();
+            }
+
+            // handleLogout이 로드될 때까지 대기
+            let checkInterval = setInterval(() => {
+                if (window.handleLogout) {
+                    clearInterval(checkInterval);
+                    setupHubLogout();
+                }
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                setupHubLogout();
+            }, 5000);
+        })();
+    </script>
+</body>
+</html>
+

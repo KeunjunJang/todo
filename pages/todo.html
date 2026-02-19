@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do List - 태스크 관리</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FullCalendar -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css?v=3">
+    <!-- CSS Variables -->
+    <link rel="stylesheet" href="../css/variables.css?v=2">
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="../css/common.css?v=2">
+</head>
+<body>
+    <!-- Navigation -->
+    <div id="navigation-placeholder"></div>
+
+    <!-- 메인 앱 화면 -->
+    <div id="main-app">
+        <div class="container-fluid">
+            <!-- 헤더 -->
+            <header class="app-header">
+                <h1 class="app-title">
+                    <i class="fas fa-clipboard-check"></i>
+                    To Do List
+                </h1>
+                <div class="header-actions">
+                    <div class="view-toggle" id="view-toggle">
+                        <button class="view-toggle-btn active" data-view="task" onclick="setViewMode('task')">
+                            <i class="fas fa-th-large"></i>
+                            Task <span class="count" id="view-task-count">0</span>
+                        </button>
+                        <button class="view-toggle-btn" data-view="activity" onclick="setViewMode('activity')">
+                            <i class="fas fa-list-check"></i>
+                            Activity <span class="count" id="view-activity-count">0</span>
+                        </button>
+                        <button class="view-toggle-btn" data-view="calendar" onclick="setViewMode('calendar')">
+                            <i class="fas fa-calendar"></i>
+                            Calendar
+                        </button>
+                    </div>
+                    <div class="search-container">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-user-search"></i>
+                            <input type="text" class="search-input" id="assignee-search" placeholder="담당자 검색...">
+                            <button class="search-clear" id="search-clear-btn" title="검색 초기화">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="header-divider"></div>
+                    <div class="filter-group">
+                        <button class="filter-btn" data-filter="all" onclick="setFilter('all')">
+                            <i class="fas fa-layer-group"></i>
+                            전체 <span class="count" id="filter-all-count">0</span>
+                        </button>
+                        <button class="filter-btn active" data-filter="active" onclick="setFilter('active')">
+                            <i class="fas fa-spinner"></i>
+                            진행중 <span class="count" id="filter-active-count">0</span>
+                        </button>
+                        <button class="filter-btn" data-filter="completed" onclick="setFilter('completed')">
+                            <i class="fas fa-check-circle"></i>
+                            완료 <span class="count" id="filter-completed-count">0</span>
+                        </button>
+                    </div>
+                    <div class="header-divider"></div>
+                    <div class="file-actions">
+                        <button class="btn-undo" id="undo-btn" title="실행 취소 (Ctrl+Z)" disabled>
+                            <i class="fas fa-undo"></i>
+                            <span class="undo-count" style="display: none;">0</span>
+                        </button>
+                        <button class="btn-file" id="save-btn" title="저장하기">
+                            <i class="fas fa-save"></i>
+                        </button>
+                        <button class="btn-file" id="upload-btn" title="엑셀 업로드 (일괄 등록)">
+                            <i class="fas fa-file-upload"></i>
+                        </button>
+                    </div>
+                    <div class="header-divider"></div>
+                    <button class="btn-primary-custom" id="add-task-btn">
+                        <i class="fas fa-plus"></i>
+                        새 태스크
+                    </button>
+                </div>
+            </header>
+
+            <!-- 태스크 목록 -->
+            <main id="tasks-container">
+                <!-- 태스크들이 여기에 렌더링됩니다 -->
+            </main>
+            <main id="activities-container" style="display: none;">
+                <!-- Activity 담당자 필터 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: var(--text-primary);">
+                        <i class="fas fa-list-check" style="margin-right: 8px; color: var(--primary);"></i>
+                        Activity 목록
+                    </h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label class="form-label mb-0" style="font-weight: 500; color: var(--text-primary);">담당자 필터:</label>
+                        <div class="assignee-dropdown-wrapper" id="activity-assignee-dropdown-wrapper">
+                            <button type="button" class="assignee-dropdown-btn" id="activity-assignee-dropdown-btn">
+                                <span class="selected-text">전체 담당자</span>
+                                <span class="selected-count" id="activity-selected-count"></span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="assignee-dropdown-menu" id="activity-assignee-dropdown-menu">
+                                <div class="assignee-dropdown-footer">
+                                    <button type="button" class="btn-clear-filter" onclick="clearActivityAssigneeFilter()">전체 해제</button>
+                                    <button type="button" class="btn-apply-filter" onclick="applyActivityAssigneeFilter()">적용</button>
+                                </div>
+                                <div id="activity-assignee-checkboxes"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Activity들이 여기에 렌더링됩니다 -->
+            </main>
+            <main id="calendar-container" style="display: none; padding: 30px; background: var(--bg-primary);">
+                <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 2px solid var(--border-color);">
+                    <div>
+                        <h2 style="margin: 0; font-size: 24px; font-weight: 600; color: var(--text-primary);">
+                            <i class="fas fa-calendar-alt" style="margin-right: 10px; color: var(--primary);"></i>
+                            캘린더 뷰
+                        </h2>
+                        <p style="margin: 5px 0 0 0; font-size: 13px; color: var(--text-secondary);">Activity 마감일 기준 일정을 확인하세요</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label class="form-label mb-0" style="font-weight: 500; color: var(--text-primary);">담당자:</label>
+                            <div class="assignee-dropdown-wrapper" id="calendar-assignee-dropdown-wrapper">
+                                <button type="button" class="assignee-dropdown-btn" id="calendar-assignee-dropdown-btn">
+                                    <span class="selected-text">전체 담당자</span>
+                                    <span class="selected-count" id="calendar-selected-count"></span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="assignee-dropdown-menu" id="calendar-assignee-dropdown-menu">
+                                    <div class="assignee-dropdown-footer">
+                                        <button type="button" class="btn-clear-filter" onclick="clearCalendarAssigneeFilter()">전체 해제</button>
+                                        <button type="button" class="btn-apply-filter" onclick="applyCalendarAssigneeFilter()">적용</button>
+                                    </div>
+                                    <div id="calendar-assignee-checkboxes"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="calendar" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- FAB 버튼 -->
+    <button class="fab-button" id="fab-add-btn" title="새 태스크 추가">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- 상세 모달 -->
+    <div class="modal fade" id="detail-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-task-title">태스크 상세</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body-content">
+                    <!-- 모달 내용이 여기에 렌더링됩니다 -->
+                </div>
+                <div class="modal-footer-actions" id="modal-footer-actions">
+                    <button class="btn-delete" onclick="deleteTask()">
+                        <i class="fas fa-trash"></i>
+                        삭제
+                    </button>
+                    <button class="btn-edit" onclick="toggleEditMode()">
+                        <i class="fas fa-edit"></i>
+                        수정
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 태스크 추가/수정 모달 -->
+    <div class="modal fade" id="task-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="task-modal-title">새 태스크 추가</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="task-form">
+                        <input type="hidden" id="task-id">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label text-secondary">Task 이름</label>
+                                <input type="text" class="form-control" id="task-name" placeholder="태스크 이름을 입력하세요"
+                                    required autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary">목적</label>
+                                <textarea class="form-control" id="task-purpose" rows="2" placeholder="이 태스크의 목적을 입력하세요"
+                                    autocomplete="off"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary">Instruction</label>
+                                <textarea class="form-control" id="task-instruction" rows="2"
+                                    placeholder="수행 방법이나 지시사항을 입력하세요" autocomplete="off"></textarea>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary">최종 산출물</label>
+                                <input type="text" class="form-control" id="task-output" placeholder="예상되는 산출물을 입력하세요"
+                                    autocomplete="off">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary">태그</label>
+                                <div class="tags-input-container" id="tags-input-container">
+                                    <input type="text" class="tags-input" id="tags-input" placeholder="태그 입력 후 Enter"
+                                        autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary">시작일</label>
+                                <input type="date" class="form-control" id="task-start-date">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary">담당자</label>
+                                <div class="tags-input-container" id="assignees-input-container">
+                                    <input type="text" class="tags-input" id="assignees-input"
+                                        placeholder="담당자 입력 후 Enter (첫번째=Main)" autocomplete="off">
+                                </div>
+                                <small class="text-muted" style="font-size: 11px;">첫 번째 입력된 담당자가 Main 담당자입니다.</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" id="save-task-btn">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Undo 힌트 -->
+    <div class="undo-hint" id="undo-hint">
+        <i class="fas fa-undo" style="margin-right: 8px;"></i>
+        Ctrl+Z로 실행 취소할 수 있습니다
+    </div>
+
+    <!-- 토스트 컨테이너 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- 일괄 업로드 모달 -->
+    <div class="modal fade" id="upload-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">엑셀 파일 업로드</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>엑셀 파일을 선택하여 태스크를 일괄 등록할 수 있습니다.</p>
+                    <input type="file" id="excel-file-input" accept=".xlsx,.xls" style="margin-top: 10px;">
+                    <div id="upload-preview" style="margin-top: 20px;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" id="confirm-upload-btn">업로드</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SheetJS for Excel parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- FullCalendar -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js?v=3"></script>
+    <script>
+        // FullCalendar가 로드되었는지 확인하고 window에 노출
+        (function() {
+            let checkCount = 0;
+            const maxChecks = 50; // 최대 5초 대기
+            
+            function checkFullCalendar() {
+                checkCount++;
+                
+                if (typeof FullCalendar !== 'undefined') {
+                    window.FullCalendar = FullCalendar;
+                    window.dispatchEvent(new CustomEvent('fullcalendarLoaded'));
+                } else {
+                    if (checkCount < maxChecks) {
+                        setTimeout(checkFullCalendar, 100);
+                    }
+                }
+            }
+            checkFullCalendar();
+        })();
+    </script>
+    <!-- TODO JS (common.js, router.js, auth.js는 index.html에서 로드됨 - 중복 로드 방지) -->
+    <script src="../js/todo.js?v=4"></script>
+</body>
+</html>
+

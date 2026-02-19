@@ -584,3 +584,4 @@ firebase deploy --only storage
 ⚠️ **Storage 규칙 배포 필수**
 - 이미지 업로드 기능을 사용하려면 `firebase deploy --only storage` 명령으로 Storage 규칙을 배포해야 합니다.
 ## Test update 2026-02-19 22:44:22
+## Test2 update 2026-02-19 22:52:23

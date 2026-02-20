@@ -29,7 +29,7 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 // 프로젝트 ID 목록
-const PROJECT_IDS = ["ws_p1", "ws_p2"];
+const PROJECT_IDS = ["ws_p1", "ws_p2", "ws_p3"];
 
 // 현재 워크스페이스 ID (로그인 후 멤버십 확인으로 설정됨)
 let currentWorkspaceId = null;

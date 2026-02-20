@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "your-project-id"
-  }
+    "default": "todo-95b42"
+  },
+  "targets": {},
+  "etags": {}
 }
-

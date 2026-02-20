@@ -41,6 +41,26 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* 로그인 페이지 전용 레이아웃 (네비 제거 시 중앙 정렬) */
+        html, body { margin: 0; min-height: 100%; }
+        html:has(body.login-page-layout) {
+            background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%) !important;
+        }
+        body.login-page-layout {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+        }
+        body.login-page-layout #app-container {
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            width: 100%; max-width: 100%; flex: 1; min-height: 0;
+        }
+        /* common.css #login-screen position:fixed 오버라이드 - app-container 내에서 중앙 정렬 */
+        body.login-page-layout #login-screen {
+            position: relative !important; left: auto !important; right: auto !important;
+            top: auto !important; bottom: auto !important;
+            width: 100%; max-width: 450px; min-height: auto;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +109,7 @@
     <script type="module" src="js/auth.js?v=5"></script>
     
     <!-- TODO JS (전역에서 로드하여 항상 실행되도록) -->
-    <script src="js/todo.js?v=4"></script>
+    <script src="js/todo.js?v=7"></script>
     
     <!-- Gallery JS (To Do with 사진 전용) -->
     <script src="js/gallery.js?v=1"></script>
@@ -176,9 +196,14 @@
                 }
             }
 
-            // 초기 네비게이션 로드 (Hub Page가 아닐 때만)
+            // 초기 경로가 로그인 페이지면 즉시 login-page-layout 적용 (중앙 정렬)
             const currentPath = window.location.pathname;
-            if (currentPath !== '/hub') {
+            if (currentPath === '/' || currentPath === '/login') {
+                document.body.classList.add('login-page-layout');
+            }
+
+            // 초기 네비게이션 로드 (Hub, Login 페이지가 아닐 때만 - 로그인은 전체화면)
+            if (currentPath !== '/hub' && currentPath !== '/' && currentPath !== '/login') {
                 loadGlobalNavigation();
             }
 
@@ -188,22 +213,34 @@
                 if (loading) {
                     loading.style.display = 'none';
                 }
+                // 이전 페이지의 모달 백드롭 제거 (어두운 오버레이 잔류 방지)
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
                 
-                // Hub Page가 아닐 때만 네비게이션 로드
                 const currentPath = window.location.pathname;
-                if (currentPath === '/hub') {
-                    // Hub Page에서는 전역 네비게이션 제거
+                // Hub, Login 페이지에서는 네비게이션 제거 (전체 화면 레이아웃)
+                if (currentPath === '/hub' || currentPath === '/' || currentPath === '/login') {
                     const existingNav = document.querySelector('.main-navigation:not(#navigation-placeholder .main-navigation)');
                     if (existingNav) {
                         existingNav.remove();
                     }
-                    return;
+                    document.body.classList.remove('login-page-layout');
+                    if (currentPath === '/hub') return;
+                }
+                if (currentPath === '/' || currentPath === '/login') {
+                    document.body.classList.add('login-page-layout');
+                } else {
+                    document.body.classList.remove('login-page-layout');
                 }
                 
-                // Hub Page가 아닐 때는 전역 네비게이션 로드
-                const existingNav = document.querySelector('.main-navigation:not(#navigation-placeholder .main-navigation)');
-                if (!existingNav) {
-                    loadGlobalNavigation();
+                // Hub, Login 페이지가 아닐 때만 전역 네비게이션 로드
+                if (currentPath !== '/hub' && currentPath !== '/' && currentPath !== '/login') {
+                    const existingNav = document.querySelector('.main-navigation:not(#navigation-placeholder .main-navigation)');
+                    if (!existingNav) {
+                        loadGlobalNavigation();
+                    }
                 }
                 
                 // 페이지의 navigation-placeholder를 실제 네비게이션으로 교체

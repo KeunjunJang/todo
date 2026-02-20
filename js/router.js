@@ -73,8 +73,8 @@ if (typeof window.Router === 'undefined') {
             }
             
             // navigation-placeholder에 네비게이션을 로드 (app-container 내부의 placeholder)
-            // Hub Page가 아닐 때만 로드
-            if (path !== '/hub') {
+            // Hub, Login 페이지가 아닐 때만 로드
+            if (path !== '/hub' && path !== '/' && path !== '/login') {
                 setTimeout(() => {
                     const placeholder = document.getElementById('navigation-placeholder');
                     if (placeholder && !placeholder.querySelector('.main-navigation')) {
@@ -254,18 +254,31 @@ if (typeof window.Router === 'undefined') {
                     link.rel = 'stylesheet';
                     link.href = style.href;
                     const stylePromise = new Promise((resolve) => {
-                        // 스타일시트 로드 완료 대기
                         if (link.sheet) {
-                            resolve(); // 이미 로드됨
+                            resolve();
                         } else {
                             link.onload = () => resolve();
-                            link.onerror = () => resolve(); // 에러가 나도 계속 진행
-                            // 일부 브라우저는 onload를 지원하지 않으므로 폴백
+                            link.onerror = () => resolve();
                             setTimeout(() => resolve(), 100);
                         }
                     });
                     stylePromises.push(stylePromise);
                     document.head.appendChild(link);
+                }
+            });
+
+            // 페이지 전환 시 이전 페이지 전용 스타일 제거
+            const oldPageStyle = document.getElementById('todo-page-styles');
+            if (oldPageStyle) oldPageStyle.remove();
+
+            // 인라인 <style> 태그 주입 (todo.html 등 페이지 전용 스타일)
+            const inlineStyles = doc.head.querySelectorAll('style');
+            inlineStyles.forEach(styleEl => {
+                if (styleEl.textContent.trim()) {
+                    const newStyle = document.createElement('style');
+                    newStyle.id = 'todo-page-styles';
+                    newStyle.textContent = styleEl.textContent;
+                    document.head.appendChild(newStyle);
                 }
             });
             
@@ -285,6 +298,16 @@ if (typeof window.Router === 'undefined') {
             } else {
                 document.body.innerHTML = doc.body.innerHTML;
             }
+
+            // 이전 페이지의 모달 백드롭 및 튜토리얼 오버레이 제거
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+            const tutorialOverlay = document.getElementById('todo-tutorial-overlay');
+            const tutorialHighlight = document.getElementById('todo-tutorial-highlight');
+            if (tutorialOverlay) tutorialOverlay.style.display = 'none';
+            if (tutorialHighlight) tutorialHighlight.style.display = 'none';
             
             // DOM 렌더링 완료 대기 후 이벤트 발생
             await new Promise(resolve => setTimeout(resolve, 50));

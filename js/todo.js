@@ -195,6 +195,138 @@ function initializeTodoPage() {
     window.setFilter = setFilter;
     window.setViewMode = setViewMode;
     window.initializeTodoPage = initializeTodoPage;
+
+    // 튜토리얼 표시 (처음 한 번만, localStorage로 제어)
+    setupTodoTutorial();
+}
+
+// To Do 튜토리얼 (처음 한 번만 표시, 실제 화면 요소 하이라이트)
+const TODO_TUTORIAL_STORAGE_KEY = 'todo-tutorial-dismissed';
+
+// 각 단계별 하이라이트 대상 요소 셀렉터
+const TODO_TUTORIAL_TARGETS = {
+    1: '#add-task-btn',           // TASK 등록
+    2: '#tasks-container',       // 우선순위 이동 (드래그 영역)
+    3: '#view-toggle',           // Task / Activity / Calendar
+    4: '.filter-group',           // 필터 버튼
+    5: '.search-container'       // 담당자 검색
+};
+
+function setupTodoTutorial() {
+    const modalEl = document.getElementById('todo-tutorial-modal');
+    const overlayEl = document.getElementById('todo-tutorial-overlay');
+    const highlightEl = document.getElementById('todo-tutorial-highlight');
+    if (!modalEl || !overlayEl || !highlightEl) return;
+
+    // 이미 한 번 본 적 있으면 표시하지 않음
+    if (localStorage.getItem(TODO_TUTORIAL_STORAGE_KEY) === 'true') return;
+
+    // 중복 초기화 방지
+    if (modalEl.dataset.tutorialInitialized === 'true') return;
+    modalEl.dataset.tutorialInitialized = 'true';
+
+    // 튜토리얼 시작 시 Task 뷰로 전환 (모든 요소가 보이도록)
+    if (typeof setViewMode === 'function') setViewMode('task');
+
+    const modal = new bootstrap.Modal(modalEl);
+    let currentStep = 1;
+    const totalSteps = 5;
+    const HIGHLIGHT_PADDING = 10;
+    const MIN_HIGHLIGHT_SIZE = 80;
+
+    function updateHighlight() {
+        const selector = TODO_TUTORIAL_TARGETS[currentStep];
+        const target = selector ? document.querySelector(selector) : null;
+
+        if (target && target.offsetParent !== null) {
+            const rect = target.getBoundingClientRect();
+            const padding = HIGHLIGHT_PADDING;
+            let left = rect.left - padding;
+            let top = rect.top - padding;
+            let width = Math.max(rect.width + padding * 2, MIN_HIGHLIGHT_SIZE);
+            let height = Math.max(rect.height + padding * 2, MIN_HIGHLIGHT_SIZE);
+
+            highlightEl.style.left = left + 'px';
+            highlightEl.style.top = top + 'px';
+            highlightEl.style.width = width + 'px';
+            highlightEl.style.height = height + 'px';
+            highlightEl.style.display = 'block';
+            /* overlay는 사용하지 않음 - 배경 어두움 없음 */
+        } else {
+            highlightEl.style.display = 'none';
+        }
+    }
+
+    function goToStep(step) {
+        currentStep = Math.max(1, Math.min(step, totalSteps));
+        document.querySelectorAll('.todo-tutorial-step').forEach(el => {
+            el.classList.toggle('active', parseInt(el.dataset.step) === currentStep);
+        });
+        document.querySelectorAll('.todo-tutorial-dots .dot').forEach(el => {
+            el.classList.toggle('active', parseInt(el.dataset.step) === currentStep);
+        });
+        const prevBtn = document.getElementById('todo-tutorial-prev');
+        const nextBtn = document.getElementById('todo-tutorial-next');
+        const doneBtn = document.getElementById('todo-tutorial-done');
+        if (prevBtn) prevBtn.disabled = currentStep === 1;
+        if (nextBtn) nextBtn.style.display = currentStep === totalSteps ? 'none' : 'inline-block';
+        if (doneBtn) doneBtn.style.display = currentStep === totalSteps ? 'inline-block' : 'none';
+
+        updateHighlight();
+    }
+
+    function hideSpotlight() {
+        overlayEl.style.display = 'none';
+        highlightEl.style.display = 'none';
+    }
+
+    function dismissTutorial(neverShowAgain) {
+        if (neverShowAgain) localStorage.setItem(TODO_TUTORIAL_STORAGE_KEY, 'true');
+        hideSpotlight();
+        modal.hide();
+    }
+
+    // 다시 보지 않기 - 바로 닫기 (UI/UX: 즉시 닫힘)
+    const skipBtn = document.getElementById('todo-tutorial-skip-btn');
+    if (skipBtn) {
+        skipBtn.addEventListener('click', () => dismissTutorial(true));
+    }
+
+    // 이전 / 다음 / 시작하기
+    const prevBtn = document.getElementById('todo-tutorial-prev');
+    const nextBtn = document.getElementById('todo-tutorial-next');
+    const doneBtn = document.getElementById('todo-tutorial-done');
+    if (prevBtn) prevBtn.addEventListener('click', () => goToStep(currentStep - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => goToStep(currentStep + 1));
+    if (doneBtn) doneBtn.addEventListener('click', () => dismissTutorial(true));
+
+    // dot 클릭으로 단계 이동
+    document.querySelectorAll('.todo-tutorial-dots .dot').forEach(dot => {
+        dot.addEventListener('click', () => goToStep(parseInt(dot.dataset.step)));
+    });
+
+    // 모달 닫힐 때 스포트라이트 제거
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        hideSpotlight();
+        if (localStorage.getItem(TODO_TUTORIAL_STORAGE_KEY) !== 'true') {
+            localStorage.setItem(TODO_TUTORIAL_STORAGE_KEY, 'true');
+        }
+    }, { once: true });
+
+    // 윈도우 리사이즈/스크롤 시 하이라이트 위치 갱신
+    const updateHandler = () => { if (highlightEl.style.display === 'block') updateHighlight(); };
+    window.addEventListener('resize', updateHandler);
+    window.addEventListener('scroll', updateHandler, true);
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        window.removeEventListener('resize', updateHandler);
+        window.removeEventListener('scroll', updateHandler, true);
+    }, { once: true });
+
+    goToStep(1);
+    modal.show();
+
+    // DOM 레이아웃 안정화 후 하이라이트 위치 재계산
+    setTimeout(updateHighlight, 100);
 }
 
 // DOMContentLoaded 이벤트 리스너는 즉시 실행 함수 내부에서 이미 등록됨

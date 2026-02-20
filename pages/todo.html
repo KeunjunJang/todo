@@ -16,6 +16,69 @@
     <link rel="stylesheet" href="../css/variables.css?v=2">
     <!-- Common CSS -->
     <link rel="stylesheet" href="../css/common.css?v=2">
+    <style>
+        /* To Do 튜토리얼 모달 */
+        .todo-tutorial-modal-content { border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .todo-tutorial-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; border: none; padding: 18px 20px;
+        }
+        .todo-tutorial-header .modal-title { font-weight: 600; font-size: 1.1rem; }
+        .todo-tutorial-header .modal-title i { margin-right: 8px; opacity: 0.9; }
+        .todo-tutorial-header .btn-close-white { filter: brightness(0) invert(1); opacity: 0.9; }
+        .todo-tutorial-body { padding: 24px 24px 16px; min-height: 200px; }
+        .todo-tutorial-step {
+            display: none; animation: todoTutorialFade 0.3s ease;
+        }
+        .todo-tutorial-step.active { display: block; }
+        @keyframes todoTutorialFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .todo-tutorial-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(129, 140, 248, 0.2) 100%);
+            color: var(--primary); display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 14px;
+        }
+        .todo-tutorial-step h6 { font-weight: 600; color: var(--text-primary); margin-bottom: 8px; font-size: 1rem; }
+        .todo-tutorial-step p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin: 0; }
+        .todo-tutorial-dots {
+            display: flex; justify-content: center; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color);
+        }
+        .todo-tutorial-dots .dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--border-color);
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .todo-tutorial-dots .dot:hover { background: var(--secondary); }
+        .todo-tutorial-dots .dot.active { background: var(--primary); transform: scale(1.2); }
+        .todo-tutorial-footer {
+            padding: 12px 20px 20px; border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+        }
+        .todo-tutorial-skip {
+            color: var(--text-secondary) !important; font-size: 0.85rem; text-decoration: none !important;
+            padding: 4px 0; order: 2;
+        }
+        .todo-tutorial-skip:hover { color: var(--text-primary) !important; }
+        .todo-tutorial-nav { display: flex; gap: 8px; order: 1; margin-left: auto; }
+        .todo-tutorial-nav .btn { min-width: 80px; }
+        /* 튜토리얼 스포트라이트 (실제 화면 요소 하이라이트) */
+        .todo-tutorial-overlay {
+            display: none !important; /* 배경 어두움 완전 제거 - 원래 레이아웃 그대로 표시 */
+        }
+        .todo-tutorial-highlight {
+            position: fixed; z-index: 1041; pointer-events: none;
+            border: 4px solid var(--primary); border-radius: 12px;
+            box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.35), 0 0 40px rgba(99, 102, 241, 0.6);
+            animation: todoTutorialPulse 2s ease-in-out infinite;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        @keyframes todoTutorialPulse {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25), 0 0 24px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.35), 0 0 32px rgba(99, 102, 241, 0.5); }
+        }
+        #todo-tutorial-modal { z-index: 1055 !important; }
+        #todo-tutorial-modal .modal-backdrop { z-index: 1050 !important; }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -252,6 +315,75 @@
             </div>
         </div>
     </div>
+
+    <!-- To Do 튜토리얼 모달 (처음 한 번만 표시) -->
+    <div class="modal fade" id="todo-tutorial-modal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" data-bs-keyboard="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 480px;">
+            <div class="modal-content todo-tutorial-modal-content">
+                <div class="modal-header todo-tutorial-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        To Do 사용 가이드
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body todo-tutorial-body">
+                    <div class="todo-tutorial-step active" data-step="1">
+                        <div class="todo-tutorial-icon"><i class="fas fa-plus-circle"></i></div>
+                        <h6>1. TASK 등록</h6>
+                        <p><strong>새 태스크</strong> 버튼을 눌러 새 작업을 등록할 수 있습니다. 이름, 목적, 담당자, 마감일 등을 입력하세요.</p>
+                    </div>
+                    <div class="todo-tutorial-step" data-step="2">
+                        <div class="todo-tutorial-icon"><i class="fas fa-grip-vertical"></i></div>
+                        <h6>2. 우선순위 이동</h6>
+                        <p>태스크 카드를 <strong>드래그 앤 드롭</strong>하여 우선순위를 변경할 수 있습니다. 위로 드래그하면 우선순위가 높아집니다.</p>
+                    </div>
+                    <div class="todo-tutorial-step" data-step="3">
+                        <div class="todo-tutorial-icon"><i class="fas fa-th-large"></i></div>
+                        <h6>3. Task / Activity / Calendar</h6>
+                        <p><strong>Task</strong>는 카드 뷰, <strong>Activity</strong>는 활동 목록, <strong>Calendar</strong>는 일정 뷰로 전환됩니다.</p>
+                    </div>
+                    <div class="todo-tutorial-step" data-step="4">
+                        <div class="todo-tutorial-icon"><i class="fas fa-filter"></i></div>
+                        <h6>4. 필터 (전체 / 진행중 / 완료)</h6>
+                        <p><strong>전체</strong>, <strong>진행중</strong>, <strong>완료</strong> 버튼으로 태스크 상태별로 필터링할 수 있습니다.</p>
+                    </div>
+                    <div class="todo-tutorial-step" data-step="5">
+                        <div class="todo-tutorial-icon"><i class="fas fa-user-search"></i></div>
+                        <h6>5. 담당자 검색</h6>
+                        <p>헤더의 검색창에서 <strong>담당자 이름</strong>을 입력하면 해당 담당자의 태스크만 볼 수 있습니다.</p>
+                    </div>
+                    <div class="todo-tutorial-dots" id="todo-tutorial-dots">
+                        <span class="dot active" data-step="1"></span>
+                        <span class="dot" data-step="2"></span>
+                        <span class="dot" data-step="3"></span>
+                        <span class="dot" data-step="4"></span>
+                        <span class="dot" data-step="5"></span>
+                    </div>
+                </div>
+                <div class="modal-footer todo-tutorial-footer">
+                    <button type="button" class="btn btn-link todo-tutorial-skip" id="todo-tutorial-skip-btn">
+                        다시 보지 않기
+                    </button>
+                    <div class="todo-tutorial-nav">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="todo-tutorial-prev" disabled>
+                            <i class="fas fa-chevron-left"></i> 이전
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm" id="todo-tutorial-next">
+                            다음 <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm" id="todo-tutorial-done" style="display: none;">
+                            시작하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 튜토리얼 스포트라이트 (실제 화면 요소 하이라이트용) -->
+    <div class="todo-tutorial-overlay" id="todo-tutorial-overlay" style="display: none;"></div>
+    <div class="todo-tutorial-highlight" id="todo-tutorial-highlight" style="display: none;"></div>
 
     <!-- Undo 힌트 -->
     <div class="undo-hint" id="undo-hint">

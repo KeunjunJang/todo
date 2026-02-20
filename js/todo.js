@@ -329,6 +329,30 @@ function setupTodoTutorial() {
     setTimeout(updateHighlight, 100);
 }
 
+/**
+ * 튜토리얼을 강제로 다시 표시 (콘솔에서 테스트용)
+ * reload 없이 호출 가능.
+ * 사용법: localStorage.removeItem('todo-tutorial-dismissed'); showTodoTutorial();
+ */
+window.showTodoTutorial = function() {
+    const modalEl = document.getElementById('todo-tutorial-modal');
+    if (modalEl) {
+        delete modalEl.dataset.tutorialInitialized;
+        localStorage.removeItem(TODO_TUTORIAL_STORAGE_KEY);
+        setupTodoTutorial();
+        return;
+    }
+    // 모달이 없을 때: /todo가 아니면 이동 후 재시도, /todo인데 없으면 배포 확인 안내
+    const path = window.location.pathname;
+    if (path !== '/todo') {
+        console.log('[Tutorial] /todo로 이동 후 튜토리얼 표시 시도...');
+        if (window.router) window.router.navigate('/todo');
+        setTimeout(() => window.showTodoTutorial(), 600);
+        return;
+    }
+    console.warn('[Tutorial] 튜토리얼 모달을 찾을 수 없습니다. firebase deploy로 최신 버전을 배포했는지 확인해주세요.');
+};
+
 // DOMContentLoaded 이벤트 리스너는 즉시 실행 함수 내부에서 이미 등록됨
 // 중복 등록 방지를 위해 여기서는 제거
 
